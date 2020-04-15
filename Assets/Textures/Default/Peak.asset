@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d1514134bc4fbd41bb739b1b9a49231, type: 3}
+  m_Name: Peak
+  m_EditorClassIdentifier: 
+  m_DefaultSprite: {fileID: 21300000, guid: 212457e6c58b1470a822671763647957, type: 3}
+  m_DefaultGameObject: {fileID: 7697899843164345041, guid: ec192cb9fe4eb43ad9ce6a781d5cdd43,
+    type: 3}
+  m_DefaultColliderType: 1
+  m_TilingRules: []
