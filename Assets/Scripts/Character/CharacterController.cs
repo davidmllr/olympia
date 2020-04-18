@@ -3,6 +3,10 @@
 namespace Character
 {
     /// <summary>
+    /// This class handles the basic controlling of the character used in the game.
+    /// Moving in general was disabled, for now, only jumping is possible.
+    /// It is mostly adapted from a CharacterController off the Asset Store by Sven Thole, which you can find here:
+    /// https://assetstore.unity.com/packages/2d/characters/bandits-pixel-art-104130
     /// </summary>
     public class CharacterController : MonoBehaviour
     {
@@ -18,6 +22,7 @@ namespace Character
         [SerializeField] private float jumpForce = 2.0f;
 
         /// <summary>
+        /// Assigns some variables when the script is loaded.
         /// </summary>
         private void Start()
         {
@@ -28,6 +33,8 @@ namespace Character
         }
 
         /// <summary>
+        /// Checks current state of the character in every frame.
+        /// Also checks for input by the user to perform a jump.
         /// </summary>
         private void Update()
         {
@@ -45,29 +52,15 @@ namespace Character
                 _animator.SetBool(IsJumping, true);
                 _grounded = false;
             }
-
-            /*
-         
-            -- Handle input and movement --
-            var inputX = Input.GetAxis("Horizontal");
-
-            // Swap direction of sprite depending on walk direction
-
-            m_spriteRenderer.flipX = inputX < 0.0f;
-
-            // Move
-            _animator.SetFloat("Speed", Mathf.Abs(inputX * m_speed));
-            m_body2d.velocity = new Vector2(inputX * m_speed, m_body2d.velocity.y);
-        
-            */
             
-            //Jump
+            /* Jump */
             if (Input.GetButtonDown("Jump") &&
                 (_grounded || _currentJumpCount < jumpCount))
                 Jump();
         }
 
         /// <summary>
+        /// Lets the character perform a jump.
         /// </summary>
         private void Jump()
         {

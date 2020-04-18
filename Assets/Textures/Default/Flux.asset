@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d1514134bc4fbd41bb739b1b9a49231, type: 3}
   m_Name: Flux
   m_EditorClassIdentifier: 
-  m_DefaultSprite: {fileID: 21300000, guid: b548fceeeb7e243d5ae0c296ab47fe6b, type: 3}
-  m_DefaultGameObject: {fileID: 7697899843164345041, guid: ec192cb9fe4eb43ad9ce6a781d5cdd43,
+  m_DefaultSprite: {fileID: 21300000, guid: ec780898e7ab94bf68c30ac734c43b4b, type: 3}
+  m_DefaultGameObject: {fileID: 7697899843164345041, guid: 25e6d1e9a9a9c4549b020e64c39d084e,
     type: 3}
   m_DefaultColliderType: 1
   m_TilingRules: []

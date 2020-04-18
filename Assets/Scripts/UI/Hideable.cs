@@ -3,6 +3,8 @@ using UnityEngine;
 namespace UI
 {
     /// <summary>
+    /// This class is a helper class for UI elements, which makes it easy to hide and show elements.
+    /// It uses a CanvasGroup to avoid using SetActive.
     /// </summary>
     [RequireComponent(typeof(CanvasGroup))]
     public class Hideable : MonoBehaviour
@@ -13,6 +15,7 @@ namespace UI
         private CanvasGroup _canvasGroup => GetComponent<CanvasGroup>();
 
         /// <summary>
+        /// If element is visible as default, show it, otherwise hide it.
         /// </summary>
         private void Awake()
         {
@@ -21,6 +24,7 @@ namespace UI
         }
 
         /// <summary>
+        /// Show the element.
         /// </summary>
         public void Show()
         {
@@ -29,6 +33,7 @@ namespace UI
         }
 
         /// <summary>
+        /// Hide the element.
         /// </summary>
         public void Hide()
         {
@@ -37,8 +42,9 @@ namespace UI
         }
 
         /// <summary>
+        /// Checks if the associated element is visible.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>If the element is visible</returns>
         public bool IsVisible()
         {
             return visible;

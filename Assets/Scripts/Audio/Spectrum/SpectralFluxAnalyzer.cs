@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace Audio.Spectrum
 {
+    /// <summary>
+    /// This class is a representation of spectral flux features.
+    /// It was fully adopted by jesse-scam.
+    /// Please find the original here: https://github.com/jesse-scam/algorithmic-beat-mapping-unity/blob/master/Assets/Lib/Internal/SpectralFluxAnalyzer.cs
+    /// </summary>
     public class SpectralFluxInfo
     {
         public bool isPeak;
@@ -12,6 +17,11 @@ namespace Audio.Spectrum
         public float time;
     }
 
+    /// <summary>
+    /// This class is used to calculate the spectral flux of an audio track.
+    /// It was fully adopted by jesse-scam.
+    /// Please find the original here: https://github.com/jesse-scam/algorithmic-beat-mapping-unity/blob/master/Assets/Lib/Internal/SpectralFluxAnalyzer.cs
+    /// </summary>
     public class SpectralFluxAnalyzer
     {
         private readonly float[] _curSpectrum;
@@ -28,6 +38,9 @@ namespace Audio.Spectrum
 
         public readonly List<SpectralFluxInfo> SpectralFluxSamples;
 
+        /// <summary>
+        /// Constructor that initializes some fields for the class.
+        /// </summary>
         public SpectralFluxAnalyzer()
         {
             SpectralFluxSamples = new List<SpectralFluxInfo>();
@@ -39,12 +52,21 @@ namespace Audio.Spectrum
             _prevSpectrum = new float[_numSamples];
         }
 
-        public void setCurSpectrum(float[] spectrum)
+        /// <summary>
+        /// Sets the current spectrum as previous spectrum and assigns a new spectrum as current.
+        /// </summary>
+        /// <param name="spectrum">Spectrum to set as current</param>
+        private void setCurSpectrum(float[] spectrum)
         {
             _curSpectrum.CopyTo(_prevSpectrum, 0);
             spectrum.CopyTo(_curSpectrum, 0);
         }
 
+        /// <summary>
+        /// Analyzes a given spectrum for spectral flux
+        /// </summary>
+        /// <param name="spectrum">Provided spectrum</param>
+        /// <param name="time">Current time of the song in seconds</param>
         public void analyzeSpectrum(float[] spectrum, float time)
         {
             // Set spectrum
@@ -80,6 +102,10 @@ namespace Audio.Spectrum
             }
         }
 
+        /// <summary>
+        /// Calculates a rectified spectral flux for the provided spectrums.
+        /// </summary>
+        /// <returns>The calculated spectral flux</returns>
         private float calculateRectifiedSpectralFlux()
         {
             var sum = 0f;
@@ -89,6 +115,11 @@ namespace Audio.Spectrum
             return sum;
         }
 
+        /// <summary>
+        /// Calculates the threshold for a given index in the spectrum.
+        /// </summary>
+        /// <param name="spectralFluxIndex">The spectral flux index</param>
+        /// <returns>The threshold for the given index</returns>
         private float getFluxThreshold(int spectralFluxIndex)
         {
             // How many samples in the past and future we include in our average
@@ -104,12 +135,22 @@ namespace Audio.Spectrum
             return avg * _thresholdMultiplier;
         }
 
+        /// <summary>
+        /// Calculates the pruned spectral flux for a given index in the spectrum.
+        /// </summary>
+        /// <param name="spectralFluxIndex">The spectral flux index</param>
+        /// <returns>The pruned threshold for the given index</returns>
         private float getPrunedSpectralFlux(int spectralFluxIndex)
         {
             return Mathf.Max(0f,
                 SpectralFluxSamples[spectralFluxIndex].spectralFlux - SpectralFluxSamples[spectralFluxIndex].threshold);
         }
 
+        /// <summary>
+        /// Checks if given spectral flux is a peak.
+        /// </summary>
+        /// <param name="spectralFluxIndex">Index of the spectral flux to check</param>
+        /// <returns>If index within spectral flux is a peak</returns>
         private bool isPeak(int spectralFluxIndex)
         {
             if (SpectralFluxSamples[spectralFluxIndex].prunedSpectralFlux >
@@ -120,6 +161,10 @@ namespace Audio.Spectrum
             return false;
         }
 
+        /// <summary>
+        /// Logs information about a sample in the spectral flux.
+        /// </summary>
+        /// <param name="indexToLog">Index of the sample to log</param>
         private void logSample(int indexToLog)
         {
             var windowStart = Mathf.Max(0, indexToLog - ThresholdWindowSize / 2);

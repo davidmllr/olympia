@@ -7,11 +7,15 @@ using UnityEngine.UI;
 
 namespace UI
 {
+    /// <summary>
+    /// This class is used to handle all interactions within the Menu scene.
+    /// </summary>
     public class MenuManager : Singleton<MenuManager>
     {
         private MenuType _current;
         [SerializeField] private Hideable mainMenu;
         [SerializeField] private Hideable playMenu;
+        [SerializeField] private Hideable aboutMenu;
 
         private Button _ownButton => GameObject.Find("Own").GetComponent<Button>();
         private Button _playButton => GameObject.Find("PlayButton").GetComponent<Button>();
@@ -19,6 +23,7 @@ namespace UI
         private static FileHandler FileHandler => FileHandler.Instance;
 
         /// <summary>
+        /// When script is loaded, show main menu and reset it to a default state.
         /// </summary>
         private void Start()
         {
@@ -28,6 +33,8 @@ namespace UI
         }
 
         /// <summary>
+        /// Checks if PlayButton can be made interactable in every frame, which depends on if the user chose a song.
+        /// Also checks if ESC button was hit.
         /// </summary>
         private void Update()
         {
@@ -38,14 +45,17 @@ namespace UI
         }
 
         /// <summary>
+        /// Hides main menu and play menu.
         /// </summary>
         private void HideAll()
         {
             mainMenu.Hide();
             playMenu.Hide();
+            aboutMenu.Hide();
         }
 
         /// <summary>
+        /// Shows main menu to the user.
         /// </summary>
         public void ShowMainMenu()
         {
@@ -55,6 +65,7 @@ namespace UI
         }
 
         /// <summary>
+        /// Shows play menu to the user.
         /// </summary>
         public void ShowPlayMenu()
         {
@@ -64,6 +75,17 @@ namespace UI
         }
 
         /// <summary>
+        /// Shows about menu to the user.
+        /// </summary>
+        public void ShowAboutMenu()
+        {
+            HideAll();
+            aboutMenu.Show();
+            _current = MenuType.AboutMenu;
+        }
+
+        /// <summary>
+        /// Selects the default song to be used within the game.
         /// </summary>
         public void SelectDefault()
         {
@@ -73,6 +95,7 @@ namespace UI
         }
 
         /// <summary>
+        /// Updates the play menu depending on the chosen song.
         /// </summary>
         public void UpdatePlayMenu()
         {
@@ -86,6 +109,7 @@ namespace UI
         }
 
         /// <summary>
+        /// Resets the 'Choose Song' button when play menu is reopened.
         /// </summary>
         private void ResetAudioState()
         {
@@ -96,6 +120,8 @@ namespace UI
         }
 
         /// <summary>
+        /// Processes the hit of the ESC button depending on the current state.
+        /// On Android, it is called when the Back button is hit.
         /// </summary>
         private void ProcessEscape()
         {
@@ -109,15 +135,20 @@ namespace UI
                     ShowMainMenu();
                     UpdatePlayMenu();
                     break;
+                case MenuType.AboutMenu:
+                    ShowMainMenu();
+                    break;
             }
         }
     }
 
     /// <summary>
+    /// Simple enumerator to keep track of the current menu the user is in.
     /// </summary>
     internal enum MenuType
     {
         MainMenu,
-        PlayMenu
+        PlayMenu,
+        AboutMenu
     }
 }

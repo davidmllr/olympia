@@ -6,6 +6,12 @@ using UnityEngine;
 
 namespace Audio.Spectrum
 {
+    /// <summary>
+    /// This controller handles all audio processing within the game.
+    /// This class is derived from a class by jesse-scam, where it was called SongController.
+    /// It was adapted for my use.
+    /// Please find the original here: https://github.com/jesse-scam/algorithmic-beat-mapping-unity/blob/master/Assets/Lib/Internal/SongController.cs
+    /// </summary>
     [RequireComponent(typeof(AudioSource))]
     public class AudioController : Singleton<AudioController>
     {
@@ -23,6 +29,7 @@ namespace Audio.Spectrum
         private AudioSource AudioSource => GetComponent<AudioSource>();
 
         /// <summary>
+        /// The clip of the FileHandler is assigned to the AudioSource
         /// </summary>
         private void Awake()
         {
@@ -30,40 +37,39 @@ namespace Audio.Spectrum
         }
 
         /// <summary>
+        /// Data from the AudioClip is loaded.
+        /// Also, the processing starts on a background thread.
         /// </summary>
         private void Start()
         {
             // Preprocess entire audio file upfront
             _analyzer = new SpectralFluxAnalyzer();
-
-            // Need all audio samples.  If in stereo, samples will return with left and right channels interweaved
-            // [L,R,L,R,L,R]
+            
             var clip = AudioSource.clip;
-
+            /* grab relevant data for preprocessing */
             _multiChannelSamples = new float[clip.samples * clip.channels];
             _numChannels = clip.channels;
             _numTotalSamples = clip.samples;
             _clipLength = clip.length;
-
-            // We are not evaluating the audio as it is being played by Unity, so we need the clip's sampling rate
             _sampleRate = clip.frequency;
 
+            /* fill sample array with samples from audio file */
             AudioSource.clip.GetData(_multiChannelSamples, 0);
-            Debug.Log(
-                $"Got the following data: numChannels: {_numChannels} / numTotalSamples: {_numTotalSamples} / length: {_clipLength}");
-
 
             TileController.Initialize();
-            var bgThread = new Thread(getFullSpectrumThreaded);
+            Play();
+            
+            var bgThread = new Thread(GetAudioSpectrum);
 
             Debug.Log("<<< Starting Spectrum Analysis >>>");
             bgThread.Start();
             
             GameManager.Instance.SetTimeTotal(clip.length);
-            Play();
+            
         }
 
         /// <summary>
+        /// Tilemaps and current time in the UI is updated.
         /// </summary>
         private void Update()
         {
@@ -77,26 +83,34 @@ namespace Audio.Spectrum
             }
         }
 
+        /// <summary>
+        /// Tilemaps are updated in the TileController.
+        /// </summary>
         private void UpdateTiles()
         {
-            var indexToPlot = getIndexFromTime(AudioSource.time) / 1024;
+            var indexToPlot = GetIndexFromTime(AudioSource.time) / 1024;
             TileController.UpdateTiles(_analyzer.SpectralFluxSamples, indexToPlot);
         }
 
         /// <summary>
-        /// 
+        /// Play the attached AudioSource.
         /// </summary>
         public void Play()
         {
             AudioSource.Play();
             isPlaying = true;
         }
+        
+        
+        #region Helpers
 
         /// <summary>
+        /// Get the index of the current sample range by time.
+        /// This class was not modified compared to the original.
         /// </summary>
-        /// <param name="curTime"></param>
-        /// <returns></returns>
-        private int getIndexFromTime(float curTime)
+        /// <param name="curTime">Current time in seconds</param>
+        /// <returns>Current sample range index</returns>
+        private int GetIndexFromTime(float curTime)
         {
             var lengthPerSample = _clipLength / _numTotalSamples;
 
@@ -104,17 +118,22 @@ namespace Audio.Spectrum
         }
 
         /// <summary>
+        /// Get the current time in seconds by sample range index.
+        /// This class was not modified compared to the original.
         /// </summary>
-        /// <param name="index"></param>
-        /// <returns></returns>
-        private float getTimeFromIndex(int index)
+        /// <param name="index">Current sample range index</param>
+        /// <returns>Current time in seconds</returns>
+        private float GetTimeFromIndex(int index)
         {
             return 1f / _sampleRate * index;
         }
 
         /// <summary>
+        /// This class is used to process the AudioClip.
+        /// It uses FFT to read the samples, afterwards a Spectral Flux Analysis is performed.
+        /// This class was not modified compared to the original.
         /// </summary>
-        private void getFullSpectrumThreaded()
+        private void GetAudioSpectrum()
         {
             try
             {
@@ -164,7 +183,7 @@ namespace Audio.Spectrum
                     scaledFFTSpectrum = DSP.Math.Multiply(scaledFFTSpectrum, scaleFactor);
 
                     // These 1024 magnitude values correspond (roughly) to a single point in the audio timeline
-                    var curSongTime = getTimeFromIndex(i) * spectrumSampleSize;
+                    var curSongTime = GetTimeFromIndex(i) * spectrumSampleSize;
 
                     // Send our magnitude data off to our Spectral Flux Analyzer to be analyzed for peaks
                     _analyzer.analyzeSpectrum(Array.ConvertAll(scaledFFTSpectrum, x => (float) x),
@@ -179,5 +198,7 @@ namespace Audio.Spectrum
                 Debug.Log(e.ToString());
             }
         }
+        
+        #endregion
     }
 }

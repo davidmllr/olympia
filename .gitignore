@@ -72,6 +72,7 @@ crashlytics-build.properties
 # User specific
 **/.idea/**/workspace.xml
 **/.idea/**/tasks.xml
+**/.idea/**/vcs.xml
 **/.idea/shelf/*
 **/.idea/dictionaries
 **/.idea/httpRequests/

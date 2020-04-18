@@ -3,6 +3,9 @@
 namespace Character
 {
     /// <summary>
+    /// This class handles ground checking related to the jumping behaviour by the character.
+    /// It is mostly adapted from a CharacterController off the Asset Store by Sven Thole, which you can find here:
+    /// https://assetstore.unity.com/packages/2d/characters/bandits-pixel-art-104130
     /// </summary>
     public class GroundSensor : MonoBehaviour
     {
@@ -14,6 +17,7 @@ namespace Character
         private float _disableTimer;
 
         /// <summary>
+        /// When script is enabled, set column count to zero.
         /// </summary>
         private void OnEnable()
         {
@@ -21,6 +25,7 @@ namespace Character
         }
 
         /// <summary>
+        /// When script awakes, assign animator.
         /// </summary>
         private void Awake()
         {
@@ -28,6 +33,7 @@ namespace Character
         }
 
         /// <summary>
+        /// Every frame, reduce the disable timer by the time that passed since the last frame.
         /// </summary>
         private void Update()
         {
@@ -35,8 +41,9 @@ namespace Character
         }
 
         /// <summary>
+        /// Checks if character is currently on the ground.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>If character is on the ground</returns>
         public bool State()
         {
             if (_disableTimer > 0)
@@ -45,8 +52,9 @@ namespace Character
         }
 
         /// <summary>
+        /// When character enters a trigger, which is ground, stop all jumping animation and increase column count.
         /// </summary>
-        /// <param name="other"></param>
+        /// <param name="other">Collider2D that was entered</param>
         private void OnTriggerEnter2D(Collider2D other)
         {
             if (!other.CompareTag("Ground")) return;
@@ -55,8 +63,9 @@ namespace Character
         }
 
         /// <summary>
+        /// When character leaves a trigger, which is ground, decrease column count.
         /// </summary>
-        /// <param name="other"></param>
+        /// <param name="other">Collider2D that was left</param>
         private void OnTriggerExit2D(Collider2D other)
         {
             if (!other.CompareTag("Ground")) return;
@@ -64,8 +73,9 @@ namespace Character
         }
 
         /// <summary>
+        /// Performs a disabling mechanism to make sure jumps are not glitching.
         /// </summary>
-        /// <param name="duration"></param>
+        /// <param name="duration">Duration of the disabling mechanism</param>
         public void Disable(float duration)
         {
             _disableTimer = duration;

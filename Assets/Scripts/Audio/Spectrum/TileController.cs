@@ -1,11 +1,15 @@
-using System;
 using System.Collections.Generic;
+using Audio.Spectrum.Destroyable;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 namespace Audio.Spectrum
 {
     /// <summary>
+    /// This class is used to convert the given audio spectres to Tilemaps for the game.
+    /// This class is derived from a class by jesse-scam, where it was called PlotController.
+    /// It was adapted for my use.
+    /// Please find the original here: https://github.com/jesse-scam/algorithmic-beat-mapping-unity/blob/master/Assets/Lib/Internal/PlotController.cs
     /// </summary>
     public class TileController : MonoBehaviour
     {
@@ -25,12 +29,12 @@ namespace Audio.Spectrum
         [SerializeField] private Tilemap peakTilemap;
         [SerializeField] private TileBase threshTile;
         [SerializeField] private Tilemap threshTileMap;
-        
-        public float multiplier = 30f;
+
+        public float multiplier = 40f;
         public float width = 1f;
 
         /// <summary>
-        /// 
+        /// Initializes the TileController by building the positions array and instantiating a base Tilemap.
         /// </summary>
         public void Initialize()
         {
@@ -39,15 +43,17 @@ namespace Audio.Spectrum
                 var pointX = displayWindowSize / 2 * -1 * width + i * width;
                 var pos = new Vector3(pointX, 0, 0);
                 positions.Add(pos);
-
-                baseTilemap.SetTile(baseTilemap.LocalToCell(new Vector3(pos.x, pos.y - 5, pos.z)), baseTile);
+                baseTilemap.SetTile(baseTilemap.LocalToCell(new Vector3(pos.x, -5, pos.z)), baseTile);
             }
         }
 
         /// <summary>
+        /// Every frame, all of the provided Tilemaps are cleared and updated.
+        /// A window is calculated by using the given window size.
+        /// For each plot inside the window, new positions for peaks, fluxs and thresholds will be calculated.
         /// </summary>
-        /// <param name="pointInfo"></param>
-        /// <param name="curIndex"></param>
+        /// <param name="pointInfo">Spectral flux information for the whole track</param>
+        /// <param name="curIndex">Current time index</param>
         public void UpdateTiles(List<SpectralFluxInfo> pointInfo, int curIndex = -1)
         {
             if (positions.Count < displayWindowSize - 1)
@@ -57,6 +63,7 @@ namespace Audio.Spectrum
             int windowStart;
             int windowEnd;
 
+            /* calculate a window to use for updating our tilemaps */
             if (curIndex > 0)
             {
                 windowStart = Mathf.Max(0, curIndex - displayWindowSize / 2);
@@ -78,7 +85,6 @@ namespace Audio.Spectrum
                 numPlotted++;
 
                 var isPeak = pointInfo[i].isPeak;
-
                 var peakPos = Calculate(positions[plotIndex], isPeak ? pointInfo[i].spectralFlux : 0f);
                 var fluxPos = Calculate(positions[plotIndex], isPeak ? 0f : pointInfo[i].spectralFlux);
                 var threshPos = Calculate(positions[plotIndex], pointInfo[i].threshold);
@@ -95,39 +101,45 @@ namespace Audio.Spectrum
                 SetTile(threshTileMap, threshTile, threshPos);
             }
         }
-
-
+        
         /// <summary>
+        /// Calculates a new vector combining the old vector and the height for the given position.
         /// </summary>
-        /// <param name="position"></param>
-        /// <param name="height"></param>
-        /// <returns></returns>
+        /// <param name="position">Given position</param>
+        /// <param name="height">Given height</param>
+        /// <returns>Calculated vector</returns>
         private Vector3 Calculate(Vector3 position, float height)
         {
             return new Vector3(position.x, height * multiplier * difficulty, position.z);
         }
 
         /// <summary>
+        /// For the given Tilemap, set a conditional tile at the given position.
+        /// Conditional tiles can be points or obstacles.
+        /// They are not placed, if they were destroyed in earlier frames.
         /// </summary>
-        /// <param name="tileMap"></param>
-        /// <param name="tile"></param>
-        /// <param name="position"></param>
+        /// <param name="tileMap">Given Tilemap</param>
+        /// <param name="tile">Given Tile</param>
+        /// <param name="position">Given position</param>
         private void SetConditionalTile(Tilemap tileMap, TileBase tile, Vector3 position)
         {
             var pos = tileMap.LocalToCell(position);
-            if (!NoteHandler.Instance.IsAvailable(pos)) return;
+            if (!DestroyHandler.Instance.IsAvailable(pos)) return;
 
             tileMap.SetTile(pos, tile);
             var obj = tileMap.GetInstantiatedObject(pos);
-            var note = obj.GetComponent<Note>();
-            note.position = pos;
+
+            if (obj.name.Contains("Note")) obj.GetComponent<Note>().position = pos;
+            else obj.GetComponent<Obstacle>().position = pos;
         }
 
         /// <summary>
+        /// For the given Tilemap, set a tile at the given position.
         /// </summary>
-        /// <param name="tileMap"></param>
-        /// <param name="tile"></param>
-        /// <param name="position"></param>
+        /// <param name="tileMap">Given Tilemap</param>
+        /// <param name="tile">Given Tile</param>
+        /// <param name="position">Given position</param>
+        /// <returns>Instantiated GameObject at the given position</returns>
         private GameObject SetTile(Tilemap tileMap, TileBase tile, Vector3 position)
         {
             var tilePos = tileMap.LocalToCell(position);
